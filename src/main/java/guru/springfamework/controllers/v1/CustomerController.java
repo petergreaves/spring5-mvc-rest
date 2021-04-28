@@ -53,5 +53,13 @@ public class CustomerController {
         return new ResponseEntity(out, HttpStatus.OK);
 
     }
+    @PatchMapping ({"{id}"})
+    public ResponseEntity<CustomerDTO> patchCustomer(@PathVariable Long id, @RequestBody CustomerDTO in){
+
+        CustomerDTO out = customerService.patchCustomer(id, in);
+        out.setCustomerURL("/api/v1/customers/" + out.getId());
+        return new ResponseEntity(out, HttpStatus.OK);
+
+    }
 
 }

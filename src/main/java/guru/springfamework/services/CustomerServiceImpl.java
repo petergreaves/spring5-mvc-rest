@@ -8,6 +8,7 @@ import guru.springfamework.mapper.CustomerMapper;
 import guru.springfamework.repositories.CustomerRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,9 +63,29 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
-    private CustomerDTO saveAndUpdate(CustomerDTO in){
+    private CustomerDTO saveAndUpdate(CustomerDTO in) {
         Customer updated = customerRepository.save(customerMapper.customerDTOToCustomer(in));
         return customerMapper.customerToCustomerDTO(updated);
 
+    }
+
+    @Override
+    public CustomerDTO patchCustomer(Long id, CustomerDTO customerDTO) {
+
+
+        return customerRepository.findById(id).map(customer -> {
+
+            if (customerDTO.getFirstName() != null) {
+                customer.setFirstName(customerDTO.getFirstName());
+            }
+
+            if (customerDTO.getLastName() != null) {
+                customer.setLastName(customerDTO.getLastName());
+            }
+            CustomerDTO retval = customerMapper.customerToCustomerDTO(customerRepository.save(customer));
+            retval.setCustomerURL("/api/v1/customers/" + id);
+
+            return retval;
+        }).orElseThrow(RuntimeException::new); //todo implement better exception handling;
     }
 }
