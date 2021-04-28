@@ -38,4 +38,6 @@ public class CategoryServiceImpl implements CategoryService {
             category.getName().equals(name)
         ).findFirst().map(CategoryMapper.INSTANCE::categoryToCategoryDTO).get();
     }
+
+
 }

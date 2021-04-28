@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class CategoryServiceTest {
+public class CategoryServiceImplTest {
 
 
     CategoryService categoryService;

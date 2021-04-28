@@ -20,13 +20,12 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryService categoryService;
-
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
+    public ResponseEntity<CategoryListDTO> getAllCategories() {
 
         CategoryListDTO list = categoryService.getAllCategories();
         log.info("list contains : {}", list.getCategoryDTOList().size());
@@ -35,7 +34,7 @@ public class CategoryController {
     }
 
     @GetMapping("{name}")
-    public ResponseEntity<CategoryDTO> getAllCategories(@PathVariable("name") String catName) {
+    public ResponseEntity<CategoryDTO> getCategoryByName(@PathVariable("name") String catName) {
 
         CategoryDTO cat = categoryService.getCategoryByName(catName);
         return new ResponseEntity(cat, HttpStatus.OK);
