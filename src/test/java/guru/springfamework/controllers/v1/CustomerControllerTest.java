@@ -4,6 +4,7 @@ package guru.springfamework.controllers.v1;
 import guru.springfamework.api.v1.model.CustomerDTO;
 import guru.springfamework.api.v1.model.CustomerListDTO;
 import guru.springfamework.services.CustomerService;
+import guru.springfamework.services.ResourceNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,9 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -78,30 +80,13 @@ class CustomerControllerTest extends AbstractRestControllerTest {
         when(customerService.getAllCustomers()).thenReturn(customerListDTO);
 
 
-        mockMvc.perform(get("/api/v1/customers/")
+        mockMvc.perform(get(CustomerController.BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.customers", hasSize(3)));
 
     }
 
-//    not implemented
-//    @Test
-//    public void getCustomerByLastName() throws Exception {
-//
-//
-//        CustomerDTO peter = new CustomerDTO();
-//        peter.setId(3L);
-//        peter.setFirstName("peter");
-//        peter.setLastName("perfect");
-//
-//        when(customerService.getCustomerByLastName("perfect")).thenReturn(peter);
-//
-//        mockMvc.perform(get("/api/v1/customers/perfect")
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.firstname", equalTo("peter")));
-//    }
 
     @Test
     public void getCustomerByID() throws Exception {
@@ -114,7 +99,7 @@ class CustomerControllerTest extends AbstractRestControllerTest {
 
         when(customerService.getCustomerByID(3L)).thenReturn(peter);
 
-        mockMvc.perform(get("/api/v1/customers/3")
+        mockMvc.perform(get(CustomerController.BASE_URL + "/3")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstname", equalTo("peter")));
@@ -134,13 +119,13 @@ class CustomerControllerTest extends AbstractRestControllerTest {
 
         when(customerService.createCustomer(any(CustomerDTO.class))).thenReturn(peterSaved);
 
-        mockMvc.perform(post("/api/v1/customers")
+        mockMvc.perform(post(CustomerController.BASE_URL)
                 .content(asJsonString(peterIn))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.firstname", equalTo("peter")))
                 .andExpect(jsonPath("$.lastname", equalTo("perfect")))
-                .andExpect(jsonPath("$.customer_url", equalTo("/api/v1/customers/3")));
+                .andExpect(jsonPath("$.customer_url", equalTo(CustomerController.BASE_URL + "/3")));
 
     }
 
@@ -152,7 +137,7 @@ class CustomerControllerTest extends AbstractRestControllerTest {
         peterNewVersion.setLastName("perfectNew");
 
         final Long id = 399L;
-        final String url = "/api/v1/customer_url/3";
+        final String url = CustomerController.BASE_URL + "/3";
 
         CustomerDTO peterUpdated = new CustomerDTO();
         peterUpdated.setId(id);
@@ -162,7 +147,7 @@ class CustomerControllerTest extends AbstractRestControllerTest {
 
         when(customerService.updateCustomer(any(Long.class), any(CustomerDTO.class))).thenReturn(peterUpdated);
 
-        mockMvc.perform(put("/api/v1/customers/399")
+        mockMvc.perform(put(CustomerController.BASE_URL + "/399")
                 .content(asJsonString(peterNewVersion))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -179,7 +164,7 @@ class CustomerControllerTest extends AbstractRestControllerTest {
 
 
         final Long id = 399L;
-        final String url = "/api/v1/customer_url/3";
+        final String url = CustomerController.BASE_URL + "/3";
 
         CustomerDTO peterUpdated = new CustomerDTO();
         peterUpdated.setId(id);
@@ -189,13 +174,34 @@ class CustomerControllerTest extends AbstractRestControllerTest {
 
         when(customerService.patchCustomer(any(Long.class), any(CustomerDTO.class))).thenReturn(peterUpdated);
 
-        mockMvc.perform(patch("/api/v1/customers/399")
+        mockMvc.perform(patch(CustomerController.BASE_URL + "/399")
                 .content(asJsonString(peterNewVersion))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstname", equalTo(peterUpdated.getFirstName())))
                 .andExpect(jsonPath("$.lastname", equalTo(peterUpdated.getLastName())))
                 .andExpect(jsonPath("$.customer_url", equalTo(peterUpdated.getCustomerURL())));
+    }
+
+    @Test
+    public void deleteCustomer() throws Exception {
+        mockMvc.perform(delete(CustomerController.BASE_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(customerService).deleteCustomerByID(any(Long.class));
+
+    }
+
+    @Test
+    public void testNotFoundException() throws Exception {
+
+        when(customerService.getCustomerByID(anyLong())).thenThrow(ResourceNotFoundException.class);
+
+        mockMvc.perform(get(CustomerController.BASE_URL + "/222")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResourceNotFoundException))
+                .andExpect(status().isNotFound());
     }
 
 }

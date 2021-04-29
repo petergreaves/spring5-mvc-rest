@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -135,6 +136,16 @@ class CustomerServiceImplTest {
                     Assertions.assertEquals(dtoFromUpdateService.getId(), updatedDTO.getId());
                     Assertions.assertEquals(dtoFromUpdateService.getId(), current.getId());
                 });
+    }
+
+    @Test
+    public void deleteCustomer(){
+
+        Long id = 1L;
+        customerService.deleteCustomerByID(id);
+        verify(customerRepository, times(1)).deleteById(any(Long.class));
+
+
     }
 
 }

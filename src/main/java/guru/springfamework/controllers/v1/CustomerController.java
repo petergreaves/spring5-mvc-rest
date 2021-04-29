@@ -9,13 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 
 @Controller
 @Slf4j
-@RequestMapping("/api/v1/customers")
+@RequestMapping(CustomerController.BASE_URL)
 public class CustomerController {
     private final CustomerService customerService;
+
+    public static final String BASE_URL = "/api/v1/customers";
 
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
@@ -40,7 +41,7 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CustomerDTO in){
 
         CustomerDTO out = customerService.createCustomer(in);
-        out.setCustomerURL("/api/v1/customers/" + out.getId());
+        out.setCustomerURL(BASE_URL + "/" + out.getId());
         return new ResponseEntity(out, HttpStatus.CREATED);
 
     }
@@ -49,7 +50,7 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO in){
 
         CustomerDTO out = customerService.updateCustomer(id, in);
-        out.setCustomerURL("/api/v1/customers/" + out.getId());
+        out.setCustomerURL(BASE_URL+"/" + out.getId());
         return new ResponseEntity(out, HttpStatus.OK);
 
     }
@@ -57,9 +58,17 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> patchCustomer(@PathVariable Long id, @RequestBody CustomerDTO in){
 
         CustomerDTO out = customerService.patchCustomer(id, in);
-        out.setCustomerURL("/api/v1/customers/" + out.getId());
+        out.setCustomerURL(BASE_URL+"/" + out.getId());
         return new ResponseEntity(out, HttpStatus.OK);
 
     }
 
+    @DeleteMapping ({"{id}"})
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id){
+
+        customerService.deleteCustomerByID(id);
+
+        return new ResponseEntity<Void>(HttpStatus.OK);
+
+    }
 }

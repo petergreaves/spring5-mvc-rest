@@ -36,7 +36,6 @@ public class CustomerServiceImpl implements CustomerService {
                 .collect(Collectors.toList()));
     }
 
-
     @Override
     public CustomerDTO getCustomerByID(Long id) {
         return customerRepository
@@ -46,7 +45,7 @@ public class CustomerServiceImpl implements CustomerService {
                     dto.setCustomerURL("/api/v1/customers/" + dto.getId());
                     return dto;
                 })
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
@@ -62,11 +61,9 @@ public class CustomerServiceImpl implements CustomerService {
         return saveAndUpdate(in);
     }
 
-
     private CustomerDTO saveAndUpdate(CustomerDTO in) {
         Customer updated = customerRepository.save(customerMapper.customerDTOToCustomer(in));
         return customerMapper.customerToCustomerDTO(updated);
-
     }
 
     @Override
@@ -87,5 +84,12 @@ public class CustomerServiceImpl implements CustomerService {
 
             return retval;
         }).orElseThrow(RuntimeException::new); //todo implement better exception handling;
+    }
+
+    @Override
+    public void deleteCustomerByID(Long id) {
+
+        customerRepository.deleteById(id);
+
     }
 }
