@@ -21,9 +21,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.when;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -56,7 +61,21 @@ class CustomerServiceImplTest {
         when(customerRepository.findAll()).thenReturn(customers);
         CustomerListDTO custDTOList = customerService.getAllCustomers();
 
-        Assertions.assertEquals(custDTOList.getCustomerDTOList().size(), customers.size());
+        assertEquals(custDTOList.getCustomerDTOList().size(), customers.size());
+
+
+    }
+
+    @Test
+    public void getAllCustomersAlt() {
+
+        List<Customer> customers = new ArrayList<>();
+        customers.addAll(Arrays.asList(new Customer(), new Customer(), new Customer()));
+        given(customerRepository.findAll()).willReturn(customers);
+
+        CustomerListDTO custDTOList = customerService.getAllCustomers();
+        then(customerRepository.findAll());//.//sh != custDTOList.getCustomerDTOList().size());
+        assertEquals(custDTOList.getCustomerDTOList().size(), customers.size());
 
 
     }
@@ -77,14 +96,14 @@ class CustomerServiceImplTest {
                     Assertions.assertNotNull(found);
                 },
                 () -> {
-                    Assertions.assertEquals(found.getFirstName(), "anne");
+                    assertEquals(found.getFirstName(), "anne");
                 });
     }
 
     @Test
     public void createCustomer() {
 
-        CustomerDTO dtoIn= new CustomerDTO();
+        CustomerDTO dtoIn = new CustomerDTO();
         dtoIn.setId(1L);
         dtoIn.setLastName("smith");
         dtoIn.setFirstName("john");
@@ -97,13 +116,13 @@ class CustomerServiceImplTest {
 
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 
-        CustomerDTO dtoExpected=customerService.createCustomer(dtoIn);
+        CustomerDTO dtoExpected = customerService.createCustomer(dtoIn);
 
         Assertions.assertAll(
                 () -> {
-                    Assertions.assertEquals(dtoExpected.getFirstName(), dtoIn.getFirstName());
-                    Assertions.assertEquals(dtoExpected.getLastName(), dtoIn.getLastName());
-                    Assertions.assertEquals(dtoExpected.getId(), dtoIn.getId());
+                    assertEquals(dtoExpected.getFirstName(), dtoIn.getFirstName());
+                    assertEquals(dtoExpected.getLastName(), dtoIn.getLastName());
+                    assertEquals(dtoExpected.getId(), dtoIn.getId());
                 });
     }
 
@@ -111,12 +130,12 @@ class CustomerServiceImplTest {
     @Test
     public void updateCustomer() {
 
-        CustomerDTO current= new CustomerDTO();
+        CustomerDTO current = new CustomerDTO();
         current.setLastName("smith");
         current.setFirstName("john");
         current.setId(99L);
 
-        CustomerDTO updatedDTO= new CustomerDTO();
+        CustomerDTO updatedDTO = new CustomerDTO();
         updatedDTO.setLastName("smithUpdated");
         updatedDTO.setFirstName("johnUpdated");
         updatedDTO.setId(99L);
@@ -127,19 +146,19 @@ class CustomerServiceImplTest {
         returned.setId(99L);
         when(customerRepository.save(any(Customer.class))).thenReturn(returned);
 
-        CustomerDTO dtoFromUpdateService=customerService.updateCustomer(current.getId(), updatedDTO);
+        CustomerDTO dtoFromUpdateService = customerService.updateCustomer(current.getId(), updatedDTO);
 
         Assertions.assertAll(
                 () -> {
-                    Assertions.assertEquals(dtoFromUpdateService.getFirstName(), updatedDTO.getFirstName());
-                    Assertions.assertEquals(dtoFromUpdateService.getLastName(), updatedDTO.getLastName());
-                    Assertions.assertEquals(dtoFromUpdateService.getId(), updatedDTO.getId());
-                    Assertions.assertEquals(dtoFromUpdateService.getId(), current.getId());
+                    assertEquals(dtoFromUpdateService.getFirstName(), updatedDTO.getFirstName());
+                    assertEquals(dtoFromUpdateService.getLastName(), updatedDTO.getLastName());
+                    assertEquals(dtoFromUpdateService.getId(), updatedDTO.getId());
+                    assertEquals(dtoFromUpdateService.getId(), current.getId());
                 });
     }
 
     @Test
-    public void deleteCustomer(){
+    public void deleteCustomer() {
 
         Long id = 1L;
         customerService.deleteCustomerByID(id);

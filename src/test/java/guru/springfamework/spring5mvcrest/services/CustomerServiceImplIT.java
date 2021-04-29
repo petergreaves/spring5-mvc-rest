@@ -6,6 +6,7 @@ import guru.springfamework.domain.Customer;
 import guru.springfamework.mapper.CustomerMapper;
 import guru.springfamework.repositories.CategoryRepository;
 import guru.springfamework.repositories.CustomerRepository;
+import guru.springfamework.repositories.VendorRepository;
 import guru.springfamework.services.CustomerService;
 import guru.springfamework.services.CustomerServiceImpl;
 import org.junit.jupiter.api.Assertions;
@@ -29,6 +30,9 @@ public class CustomerServiceImplIT {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private VendorRepository vendorRepository;
+
     private CustomerService customerService;
 
     @Test
@@ -39,7 +43,7 @@ public class CustomerServiceImplIT {
 
     @BeforeEach
     public void setup() throws Exception {
-        Bootstrap bootstrap = new Bootstrap(categoryRepository, customerRepository);
+        Bootstrap bootstrap = new Bootstrap(categoryRepository, customerRepository, vendorRepository);
         bootstrap.run();
         customerService = new CustomerServiceImpl(CustomerMapper.INSTANCE, customerRepository);
     }
